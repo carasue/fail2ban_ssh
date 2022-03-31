@@ -1,0 +1,11 @@
+Dec  5 21:39:20 adc1 sshd[41458]: Failed password for root from 192.168.1.3 port 37362 ssh2
+Dec  5 21:39:24 adc1 sshd[41458]: Failed password for root from 192.168.1.3 port 37362 ssh2
+Dec  5 21:39:25 adc1 sshd[41458]: Failed password for root from 192.168.1.3 port 37362 ssh2
+Dec  5 21:40:20 adc1 sshd[41458]: Failed password for root from 192.168.1.4 port 37362 ssh2
+Dec  5 21:39:20 adc1 sshd[41458]: Failed password for root from 192.168.1.4 port 37362 ssh2
+Dec  5 21:59:21 adc1 sshd[41458]: Failed password for root from 192.168.1.5 port 37362 ssh2
+Dec  5 21:59:22 adc1 sshd[41458]: Failed password for root from 192.168.1.5 port 37362 ssh2
+Dec  5 21:59:23 adc1 sshd[41458]: Failed password for root from 192.168.1.5 port 37362 ssh2
+Dec  5 22:59:23 adc1 sshd[41458]: Failed password for root from 192.168.1.7 port 37362 ssh2
+
+
