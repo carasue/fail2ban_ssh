@@ -6,6 +6,7 @@ from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 import re
 import datetime
 import requests
+import json
 
 dir_path = "/Users/yuandarong/mycode/fail2ban_ssh/"
 ssh_log_path = "/Users/yuandarong/mycode/fail2ban_ssh/ssh.log"
@@ -25,15 +26,15 @@ def parse_failed_line(log_line):
     date_str = ' '.join([mon_str, day_str, time_str])
     date_obj = datetime.datetime.strptime(date_str, '%b %d %X')
     date_obj = date_obj.replace(year=datetime.datetime.now().year)
-    timestamp = datetime.datetime.timestamp(date_obj)
+    timestamp = int(datetime.datetime.timestamp(date_obj))
     return timestamp, ip
 
 def add_attempt_entry(timestamp, ip):
-    payload = {
+    payload = json.dumps({
         'source': ip,
         'service': 'ssh',
         'timestamp': timestamp
-    }
+    })
     api = api_add_entry.format(ip)
     r = requests.put(api, data=payload)
     print(r)
