@@ -8,16 +8,16 @@ import datetime
 import requests
 import json
 
-dir_path = "/Users/yuandarong/mycode/fail2ban_ssh/"
-ssh_log_path = "/Users/yuandarong/mycode/fail2ban_ssh/ssh.log"
-api_add_entry = "http://127.0.0.1:8080/api/entries/add/{}"
+dir_path = "/var/log"
+ssh_log_path = "/var/log/auth.log"
+api_add_entry = "http://localhost:8080/api/entries/add/{}"
 
 def pad_day_str(day_str):
     if len(day_str) == 1:
         day_str = '0' + day_str
     return day_str
         
-def parse_failed_line(log_line):
+def parse_ssh_failed_line(log_line):
     timestamp = ''
     log_items = log_line.split()
     mon_str, day_str, time_str = log_items[:3]
@@ -28,6 +28,22 @@ def parse_failed_line(log_line):
     date_obj = date_obj.replace(year=datetime.datetime.now().year)
     timestamp = int(datetime.datetime.timestamp(date_obj))
     return timestamp, ip
+
+def parse_php_failed_line(log_line):
+    timestamp = ''
+    log_items = log_line.split()
+    mon_str, day_str, time_str = log_items[:3]
+    day_str = pad_day_str(day_str)
+    date_str = ' '.join([mon_str, day_str, time_str])
+    date_obj = datetime.datetime.strptime(date_str, '%b %d %X')
+    date_obj = date_obj.replace(year=datetime.datetime.now().year)
+    timestamp = int(datetime.datetime.timestamp(date_obj))
+    if "message repeated" in log_line:
+        times = log_line.split("message repeated")[1].strip().split(" ")[0]
+        sus_ip = log_line.split("from")[-1].strip(']').strip()
+    else:
+        sus_ip = log_line.split("from")[-1].strip()
+    return timestamp, sus_ip
 
 def add_attempt_entry(timestamp, ip):
     payload = json.dumps({
@@ -46,9 +62,14 @@ class SSHLogFileChangeHandler(FileSystemEventHandler):
             with open(ssh_log_path, 'r') as ssh_log:
                 log_lines = ssh_log.readlines()
                 for log_line in log_lines:
+                    # monitor ssh:
                     if "Failed password" in log_line:
                         print(log_line)
-                        timestamp, ip = parse_failed_line(log_line)
+                        timestamp, ip = parse_ssh_failed_line(log_line)
+                        add_attempt_entry(timestamp, ip)
+                    # monitor phpMyadmin:
+                    if "phpMyAdmin" in log_line and "user denied" in log_line:
+                        timestamp, ip = parse_php_failed_line(log_line)
                         add_attempt_entry(timestamp, ip)
 
 if __name__ == "__main__":
